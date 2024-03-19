@@ -52,38 +52,37 @@ np.random.seed(SEED)
 
 import os
 from PIL import Image
-from avalanche_rl.training.strategies.env_wrappers import ClipRewardWrapper, \
-    FireResetWrapper, FrameStackingWrapper
-from gym.wrappers.atari_preprocessing import AtariPreprocessing
-from avalanche_rl.benchmarks.rl_benchmark_generators import make_env
+import gymnasium as gym
+from gymnasium.wrappers import AtariPreprocessing
 
-ENV = "PongNoFrameskip-v4"
-NUM_EPS = 100
+ENV = "BeamRiderNoFrameskip-v4"
+NUM_EPS = 1
 IMG_SZ = 84
 
-wrappers = [
-    AtariPreprocessing,
-    FireResetWrapper,
-    ClipRewardWrapper
-]
+# wrappers = [
+#     AtariPreprocessing,
+#     FireResetWrapper,
+#     ClipRewardWrapper
+# ]
 
 # Create and set-up the environment.
-env = make_env(ENV, wrappers=wrappers)
+env = gym.make(ENV)
+env = AtariPreprocessing(env)
 obs = env.reset()
 datadir = f"data/{ENV}_{IMG_SZ}"
 
 for ep in range(NUM_EPS):
     os.makedirs(f"{datadir}/{ep}", exist_ok=True)
-    obs = env.reset()
+    obs, info = env.reset()
     timestep = 0
     img = Image.fromarray(obs)
     img.save(f"{datadir}/{ep}/{timestep}.png")
     
     while True:
-        obs, r, done, _ = env.step(env.action_space.sample())
+        obs, r, done, trunc, info = env.step(env.action_space.sample())
         timestep += 1
         img = Image.fromarray(obs)
         img.save(f"{datadir}/{ep}/{timestep}.png")
-        if done:
+        if done or trunc:
             break
 print("GenerateData complete - saved in:", datadir)
