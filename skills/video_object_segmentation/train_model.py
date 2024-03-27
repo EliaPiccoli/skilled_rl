@@ -9,26 +9,29 @@ from model import VideoObjectSegmentationModel
 from dataset import Dataset
 
 if len(sys.argv) < 3:
-    print(f"Usage: python {sys.argv[0]} <gpu-device> <seed>")
+    print(f"Usage: python {sys.argv[0]} <gpu-device> <seed> <game>")
     exit()
 gpu = sys.argv[1]
 SEED = int(sys.argv[2])
+game = sys.argv[3]
 
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-torch.set_num_threads(8)
+torch.set_num_threads(1)
 device = torch.device(gpu if torch.cuda.is_available() else "cpu")
 
-env = "PongNoFrameskip-v4"
+# ["Pong", "Breakout", "BeamRider", "Qbert", "Seaquest", "SpaceInvaders", "RoadRunner", "Enduro", "MsPacman", "Asteroids"]
+# game = "BeamRider"
+env = f"{game}NoFrameskip-v4"
 num_frames = 2
 batch_size = 32
 steps = 500000
 lr = 1e-4
 max_grad_norm = 5.0
 
-wandb.init(project="attskills", entity="epai", tags=["vobj_seg", "breakout"])
+wandb.init(project="attskills", entity="epai", tags=["vobj_seg", str.lower(game)])
 wandb.config.update({
         "seed": SEED,
         "batch-size": batch_size,

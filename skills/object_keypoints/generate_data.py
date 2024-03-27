@@ -54,9 +54,11 @@ import os
 from PIL import Image
 import gymnasium as gym
 from gymnasium.wrappers import AtariPreprocessing
+from tqdm import tqdm
 
-ENV = "BeamRiderNoFrameskip-v4"
-NUM_EPS = 1
+# (Pong, Breakout, BeamRider, Qbert, Seaquest, SpaceInvaders, RoadRunner, Enduro, MsPacman, Asteroids)
+ENV = "AsteroidsNoFrameskip-v4"
+NUM_EPS = 100
 IMG_SZ = 84
 
 # wrappers = [
@@ -71,7 +73,7 @@ env = AtariPreprocessing(env)
 obs = env.reset()
 datadir = f"data/{ENV}_{IMG_SZ}"
 
-for ep in range(NUM_EPS):
+for ep in tqdm(range(NUM_EPS)):
     os.makedirs(f"{datadir}/{ep}", exist_ok=True)
     obs, info = env.reset()
     timestep = 0

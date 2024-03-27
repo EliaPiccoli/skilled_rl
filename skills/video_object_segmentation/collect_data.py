@@ -100,4 +100,7 @@ def make_dataset(env_name):
 #             ep_idx += 1
 
 if __name__ == '__main__':
-    make_dataset(sys.argv[1] + 'NoFrameskip-v4')
+    envs = ["Pong", "Breakout", "BeamRider", "Qbert", "Seaquest", "SpaceInvaders", "RoadRunner", "Enduro", "MsPacman", "Asteroids"]
+    for env in envs[2:]:
+        print(">> Collecting data", env, " <<")
+        make_dataset(env + 'NoFrameskip-v4')

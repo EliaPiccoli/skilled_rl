@@ -11,10 +11,11 @@ from model import Encoder, KeyNet, RefineNet, Transporter
 from dataset import Dataset, Sampler
 
 if len(sys.argv) < 3:
-    print(f"Usage: python {sys.argv[0]} <gpu-device> <seed>")
+    print(f"Usage: python {sys.argv[0]} <gpu-device> <seed> <game>")
     exit()
 gpu = sys.argv[1]
 seed = int(sys.argv[2])
+game = sys.argv[3]
 project = "attskills"
 
 device = torch.device(gpu if torch.cuda.is_available() else "cpu")
@@ -25,7 +26,7 @@ torch.manual_seed(seed)
 
 # ENV = "PongNoFrameskip-v4"
 IMG_SZ = 84
-data_path = f"data/PongNoFrameskip-v4_84"
+data_path = f"data/{game}NoFrameskip-v4_84"
 NUM_TR_ENVS = 10
 NUM_EPS = 100
 MAX_EP_LEN = 100
@@ -37,7 +38,7 @@ lr = 1e-3
 lr_decay = 0.95
 lr_deacy_len = 1e5
 
-wandb.init(project=project, entity="epai", tags=["obj_key"])
+wandb.init(project=project, entity="epai", tags=["obj_key", game], name=game)
 wandb.config.update({
         "num_eps": NUM_EPS,
         "max_ep_len": MAX_EP_LEN,
