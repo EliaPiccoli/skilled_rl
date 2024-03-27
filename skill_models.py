@@ -5,37 +5,50 @@ model_paths = {}
 
 # ### state
 model_paths["pong_state_rep_uns_path"] = "skills/models/pong-state-rep.pt"
-model_paths["pong_state_ae_path"] = "skills/models/pong-state-rep-ae.pt"
-
-# ### denoise-ae
-model_paths["pong_denoise_ae_path"] = "skills/models/pong-denoise-ae.pt"
-
-# ### object-keypoints
-model_paths["pong_obj_key_path"] = "skills/models/pong-obj-key.pt"
-model_paths["pong_obj_key_adapt_enc_path"] = "skills/models/pong-obj-key-enc-ae.pt"
-model_paths["pong_obj_key_adapt_keynet_path"] = "skills/models/pong-obj-key-keynet-ae.pt"
-
-# ### video-segmentation
-model_paths["pong_vid_obj_seg_path"] = "skills/models/pong-vid-obj-seg.pt"
-model_paths["pong_vid_obj_seg_adapt_path"] = "skills/models/pong-vid-obj-seg-ae.pt"
-
-# ---------------------------------------------------------------------------------------------------------------
-## BREAKOUT
-
-# ### state
 model_paths["breakout_state_rep_uns_path"] = "skills/models/breakout-state-rep.pt"
+model_paths["asteroids_state_rep_uns_path"] = "skills/models/asteroids-state-rep.pt"
+model_paths["mspacman_state_rep_uns_path"] = "skills/models/mspacman-state-rep.pt"
+model_paths["qbert_state_rep_uns_path"] = "skills/models/qbert-state-rep.pt"
+model_paths["seaquest_state_rep_uns_path"] = "skills/models/seaquest-state-rep.pt"
+model_paths["spaceinvaders_state_rep_uns_path"] = "skills/models/spaceinvaders-state-rep.pt"
+
+model_paths["pong_state_ae_path"] = "skills/models/pong-state-rep-ae.pt"
 model_paths["breakout_state_ae_path"] = "skills/models/breakout-state-rep-ae.pt"
 
 # ### denoise-ae
+model_paths["pong_denoise_ae_path"] = "skills/models/pong-denoise-ae.pt"
 model_paths["breakout_denoise_ae_path"] = "skills/models/breakout-denoise-ae.pt"
 
 # ### object-keypoints
+model_paths["pong_obj_key_path"] = "skills/models/pong-obj-key.pt"
 model_paths["breakout_obj_key_path"] = "skills/models/breakout-obj-key.pt"
+model_paths["asteroids_obj_key_path"] = "skills/models/asteroids-obj-key.pt"
+model_paths["beamrider_obj_key_path"] = "skills/models/beamrider-obj-key.pt"
+model_paths["enduro_obj_key_path"] = "skills/models/enduro-obj-key.pt"
+model_paths["mspacman_obj_key_path"] = "skills/models/mspacman-obj-key.pt"
+model_paths["qbert_obj_key_path"] = "skills/models/qbert-obj-key.pt"
+model_paths["roadrunner_obj_key_path"] = "skills/models/roadrunner-obj-key.pt"
+model_paths["seaquest_obj_key_path"] = "skills/models/seaquest-obj-key.pt"
+model_paths["spaceinvaders_obj_key_path"] = "skills/models/spaceinvaders-obj-key.pt"
+
+model_paths["pong_obj_key_adapt_enc_path"] = "skills/models/pong-obj-key-enc-ae.pt"
+model_paths["pong_obj_key_adapt_keynet_path"] = "skills/models/pong-obj-key-keynet-ae.pt"
 model_paths["breakout_obj_key_adapt_enc_path"] = "skills/models/breakout-obj-key-enc-ae.pt"
 model_paths["breakout_obj_key_adapt_keynet_path"] = "skills/models/breakout-obj-key-keynet-ae.pt"
 
 # ### video-segmentation
+model_paths["pong_vid_obj_seg_path"] = "skills/models/pong-vid-obj-seg.pt"
 model_paths["breakout_vid_obj_seg_path"] = "skills/models/breakout-vid-obj-seg.pt"
+model_paths["asteroids_vid_obj_seg_path"] = "skills/models/asteroids-vid-obj-seg.pt"
+model_paths["beamrider_vid_obj_seg_path"] = "skills/models/beamrider-vid-obj-seg.pt"
+model_paths["enduro_vid_obj_seg_path"] = "skills/models/enduro-vid-obj-seg.pt"
+model_paths["mspacman_vid_obj_seg_path"] = "skills/models/mspacman-vid-obj-seg.pt"
+model_paths["qbert_vid_obj_seg_path"] = "skills/models/qbert-vid-obj-seg.pt"
+model_paths["roadrunner_vid_obj_seg_path"] = "skills/models/roadrunner-vid-obj-seg.pt"
+model_paths["seaquest_vid_obj_seg_path"] = "skills/models/seaquest-vid-obj-seg.pt"
+model_paths["spaceinvaders_vid_obj_seg_path"] = "skills/models/spaceinvaders-vid-obj-seg.pt"
+
+model_paths["pong_vid_obj_seg_adapt_path"] = "skills/models/pong-vid-obj-seg-ae.pt"
 model_paths["breakout_vid_obj_seg_adapt_path"] = "skills/models/breakout-vid-obj-seg-ae.pt"
 
 # ---------------------------------------------------------------------------------------------------------------
