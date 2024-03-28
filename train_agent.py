@@ -7,6 +7,7 @@ from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
 from stable_baselines3 import PPO
 from feature_extractors import LinearConcatExtractor, CNNConcatExtractor, CombineExtractor, SelfAttentionExtractor, \
     ReservoirConcatExtractor
+from stable_baselines3.common.callbacks import EvalCallback
 from wandb.integration.sb3 import WandbCallback
 import os
 import torch
@@ -20,7 +21,7 @@ parser.add_argument("--use-skill", help="if True, use skill agent, otherwise sta
 parser.add_argument("--device", help="integer number of a device to use (0, 1, 2, 3), or cpu",
                     type=str, default="cpu", required=False, choices=["cpu", "0", "1", "2", "3"])
 parser.add_argument("--env", help="Name of the environment to use i.e. Pong",
-                    type=str, required=True, choices=["Pong", "Breakout"])
+                    type=str, required=True, choices=["Pong", "Breakout", "Asteroids", "MsPacman", "Qbert", "Seaquest", "SpaceInvaders"])
 parser.add_argument("--extractor", help="Which type of feature extractor to use", type=str,
                     default="lin_concat_ext", required=False,
                     choices=["lin_concat_ext", "cnn_concat_ext", "combine_ext",
@@ -42,7 +43,7 @@ if not torch.cuda.is_available() and device != "cpu":
 
 env = args.env.lower()
 env_name = args.env
-with open(f'configs/{env}.yaml', 'r') as file:
+with open('configs/atari.yaml', 'r') as file:
     config = yaml.safe_load(file)["config"]
 
 config["device"] = device
@@ -168,6 +169,10 @@ else:
     vec_env = VecFrameStack(vec_env, n_stack=config["n_stacks"])
     vec_env = VecTransposeImage(vec_env)
 
+    vec_eval_env = make_atari_env(game_id, n_envs=config["n_envs"])
+    vec_eval_env = VecFrameStack(vec_env, n_stack=config["n_stacks"])
+    vec_eval_env = VecTransposeImage(vec_env)
+
     model = PPO("CnnPolicy",
                 vec_env,
                 learning_rate=linear_schedule(config["learning_rate"]),
@@ -178,19 +183,29 @@ else:
                 normalize_advantage=config["normalize"],
                 ent_coef=config["ent_coef"],
                 vf_coef=config["vf_coef"],
-                #tensorboard_log=gamelogs,
+                tensorboard_log=gamelogs,
                 policy_kwargs=policy_kwargs,
                 verbose=1,
                 device=config["device"],
                 )
 
+    callbacks = [
+        WandbCallback(
+            verbose=2
+        ),
+        EvalCallback(
+            vec_eval_env,
+            n_eval_episodes=10,
+            best_model_save_path=f"models/{run.id}",
+            log_path=gamelogs,
+            eval_freq=5000*config["n_envs"]
+        )
+    ]
+
     #model.learn(config["n_timesteps"], tb_log_name=tb_log_name)
     model.learn(
         config["n_timesteps"],
-        callback=WandbCallback(
-            model_save_path=f"models/{run.id}",
-            verbose=2,
-        )
+        callback=callbacks
     )
     run.finish()
 
