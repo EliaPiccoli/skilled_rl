@@ -170,8 +170,8 @@ else:
     vec_env = VecTransposeImage(vec_env)
 
     vec_eval_env = make_atari_env(game_id, n_envs=config["n_envs"])
-    vec_eval_env = VecFrameStack(vec_env, n_stack=config["n_stacks"])
-    vec_eval_env = VecTransposeImage(vec_env)
+    vec_eval_env = VecFrameStack(vec_eval_env, n_stack=config["n_stacks"])
+    vec_eval_env = VecTransposeImage(vec_eval_env)
 
     model = PPO("CnnPolicy",
                 vec_env,
@@ -198,7 +198,7 @@ else:
             n_eval_episodes=10,
             best_model_save_path=f"models/{run.id}",
             log_path=gamelogs,
-            eval_freq=5000*config["n_envs"]
+            eval_freq=1000*config["n_envs"]
         )
     ]
 
