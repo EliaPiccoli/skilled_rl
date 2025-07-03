@@ -5,14 +5,16 @@ import argparse
 import atari_py
 import os
 from stable_baselines3 import PPO
+from tqdm import tqdm
+import glob
+from PIL import Image
+import re
+import math
+from pathlib import Path
 import os
 import moviepy.video.io.ImageSequenceClip
-from utils.load_custom_policykwargs import load_policy_kwargs
-
-
 def episode_terminated(infos):
     return any(info.get('episode_done', False) for info in infos)
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--env", help="Name of the environment to use i.e. Pong, Breakoout, etc.",
@@ -25,19 +27,11 @@ args = parser.parse_args()
 N_ENVS = 1
 FRAME_STACK = 4
 ENV_NAME = args.env  # "Pong"
-model_path = "3mo21eg2"  # change this to the model you want to visualize
-device = "cuda:2"
-info = "_entropy0-001"
-feature_dim = 1024 if "Pong" in ENV_NAME else 256
-net_arch = [256]
-custom_object = load_policy_kwargs(expert=False, device=device, env=ENV_NAME,
-                                   net_arch=net_arch, agent="wsharing_attention_ext",
-                                   features_dim=feature_dim, num_conv_layers=0)
 
 # Create the environment
 if ENV_NAME.lower() in atari_py.list_games():
     ENV_NAME = ENV_NAME.replace('_', '')
-    ENV_NAME = ENV_NAME + "NoFrameskip-v4"
+    ENV_NAME = ENV_NAME+"NoFrameskip-v4"
     vec_env = make_atari_env(ENV_NAME, n_envs=N_ENVS)
     action_meanings = vec_env.envs[0].unwrapped.get_action_meanings()
     action_space = vec_env.action_space
@@ -47,48 +41,41 @@ if ENV_NAME.lower() in atari_py.list_games():
 else:
     raise NotImplementedError(ENV_NAME + " not implemented yet, try CartPole-v1 or one atari game")
 
-SAVE_DIR = "./attention_data/" + ENV_NAME + info
+
+SAVE_DIR = "./attention_data/" + ENV_NAME
 # Create a directory data with subdirectory "breakout" using os to store the frames
 if not os.path.exists(SAVE_DIR):
     os.makedirs(SAVE_DIR)
+
 
 obs = vec_env.reset()
 
 if ENV_NAME.lower() in atari_py.list_games():
     vec_env.render("rgb_array")
 
-model = PPO.load(f"./models/{model_path}/best_model.zip", device=device, custom_objects=custom_object)
-offset = 1 / len(action_meanings)
+model_path = "ba5ow0zz" # ATTENZIONE CAMBIA MODELLO
+
+model = PPO.load(f"./models/{model_path}/best_model.zip", device="cuda:1")
+offset = 1/len(action_meanings)
 done = False
 i = 0
+score = 0
 while not done:
-    action, _states = model.predict(obs)  # returns a list of actions
+    action, _states = model.predict(obs) # returns a list of actions
 
     weights = model.policy.features_extractor.att_weights
-    weights_label = list(weights.keys())
-
-    for index, l in enumerate(weights_label):
-        if l == "state_rep_uns":
-            weights_label[index] = "SR"
-        if l == "obj_key_enc":
-            weights_label[index] = "OKE"
-        if l == "obj_key_key":
-            weights_label[index] = "OKK"
-        if l == "vid_obj_seg":
-            weights_label[index] = "VOS"
 
     values = [item for sublist in weights.values() for item in sublist]
     values = [v.item() for v in values]
 
     last_frame = obs[:, -1, :, :]
 
-    fig, ax = plt.subplots(1, 3, figsize=(12, 6), gridspec_kw={'width_ratios': [1, 1, 0.2]})
-    fig.suptitle(f"WSA Visualization - Step: {i}", fontsize=17)
+    fig, ax = plt.subplots(1, 3, figsize=(13, 7), gridspec_kw={'width_ratios': [1, 1, 0.2]})
+    fig.suptitle(f"Attention Visualization - Step: {i}", fontsize=17)
     ax[0].imshow(last_frame[0], cmap='gray')
     ax[0].set_title('Last frame', fontsize=15)
     ax[0].axis('off')
-
-    ax[1].bar(weights_label, values)
+    ax[1].bar(weights.keys(), values)
     ax[1].set_title('Attention Weights', fontsize=15)
     ax[1].set_ylim([0, 1])
     # Plot the list of names in a new subplot on the right
@@ -98,7 +85,7 @@ while not done:
     horizontal_offset = 0.5
     for j, a in enumerate(action_meanings):
         if action[0] == j:
-            ax[2].text(horizontal_offset, 1 - vertical_offset, a, fontsize=15, ha='center', color="blue")
+            ax[2].text(horizontal_offset, 1 - vertical_offset, a, fontsize=15, ha='center', color="black")
         else:
             ax[2].text(horizontal_offset, 1 - vertical_offset, a, fontsize=14, ha='center', color="gray")
         vertical_offset += offset  # Adjust this value to control vertical spacing
@@ -109,22 +96,29 @@ while not done:
     plt.savefig(f"{SAVE_DIR}/{i}.png")
     plt.close()
 
-    new_obs, rewards, dones, infos = vec_env.step(
-        action)  # we need to pass an array of actions in step, one action for each environment
+    new_obs, rewards, dones, infos = vec_env.step(action)  # we need to pass an array of actions in step, one action for each environment
     obs = new_obs
-
-    if "Pong" in ENV_NAME:
-        done = dones[0]
-        print(f"Step:{i}")
-    else:
-        print(f"Step:{i} lives:{infos[0].get('lives')}")
-        if infos[0].get("lives") == 0:
-            break
+    score += rewards[0]
+    print("Step:", i, " - weights:", [round(v, 3) for v in values], " - score:", score)
+    done = episode_terminated(infos)
+    #done = dones[0]
 
     i = i + 1
 
 obs = vec_env.reset()
 vec_env.close()
+
+
+
+# ------------------ GIF ------------------ #
+
+# get all files in SAVE_DIR and list it in order
+# files = glob.glob(f"{SAVE_DIR}/*.png")
+# frames = [Image.open(image) for image in files[:900]] #memory error if too big
+#
+# frame_one = frames[0]
+# frame_one.save(SAVE_DIR+"/attention.gif", format="GIF", append_images=frames,save_all=True, duration=200, loop=1)
+
 
 # ------------------ VIDEO ------------------ #
 

@@ -26,11 +26,12 @@ from feature_extractors import LinearConcatExtractor, FixedLinearConcatExtractor
 import argparse
 
 # ---------------------------------- MAIN ----------------------------------
-device = "cuda:1"
+device = "cuda:3"
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # ignore tensorflow warnings about CPU
-n_seeds = 5
+n_seeds = 20
 seeds = [np.random.randint(0, 100000) for i in range(n_seeds)]
+seeds[0] = 81197
 eval_episodes = 20
 
 results_dir = "./results"
@@ -44,15 +45,15 @@ if os.path.isfile(path):
 else:
     df = pd.DataFrame(columns=["env", "agent", "seed", "mean_reward", "std_reward"])
 
-d = {"Ms_Pacman-3": {"DQN": ["9fcsfg0q", "qait7iqd", "ux3dq649", "d22cq9mj"],
+d = {
+    # "Pong": {
+    #     "wsharing_attention_ext": ["qx18auf8"]
+    # },
 
-                     "wsharing_attention_ext": ["2kt7afqj", "wpvnmnep", "qz3qi9rd", "zc8fhqcc"]
-                     },
-
-     "Breakout-Expert": {"DQN": ["5a66lrbw", "b75w1mj5", "ezg1j2ni", "sggf6fi1"],
-                  "wsharing_attention_ext": ["ayaor062", "6lgipksw", "ssg08m8t", "dhkwd3sz"]
-                  },
-     }
+     "Space_Invaders": {
+        "DQN": ["trzslwmc"]
+    },
+}
 
 for seed in seeds:
     for env in d.keys():
